@@ -1,106 +1,57 @@
-import {
-  createBottomTabNavigator,
-  createBottomTabScreen,
-} from '@react-navigation/bottom-tabs';
-import { HeaderButton, Text } from '@react-navigation/elements';
-import { createStaticNavigation } from '@react-navigation/native';
-import {
-  createNativeStackNavigator,
-  createNativeStackScreen,
-} from '@react-navigation/native-stack';
-import { Image } from 'react-native';
-import bell from '../assets/bell.png';
-import newspaper from '../assets/newspaper.png';
-import { Home } from './screens/Home';
-import { NotFound } from './screens/NotFound';
-import { Profile } from './screens/Profile';
-import { Settings } from './screens/Settings';
-import { Updates } from './screens/Updates';
+import { NavigationContainer } from "@react-navigation/native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import LoginScreen from "./screens/auth/LoginScreen";
+import EditProductScreen, {
+  EditProductScreenParams,
+} from "./screens/product/EditProductScreen";
+import * as SplashScreen from "expo-splash-screen";
+import HomeScreen from "./screens/HomeScreen";
+import { useAuthStore } from "../store/auth.store";
+import ProductDetailScreen, {
+  ProductDetailScreenParams,
+} from "./screens/product/ProductDetailScreen";
 
-const HomeTabs = createBottomTabNavigator({
-  screens: {
-    Home: createBottomTabScreen({
-      screen: Home,
-      options: {
-        title: 'Feed',
-        tabBarIcon: ({ color, size }) => (
-          <Image
-            source={newspaper}
-            tintColor={color}
-            style={{
-              width: size,
-              height: size,
-            }}
-          />
-        ),
-      },
-    }),
-    Updates: createBottomTabScreen({
-      screen: Updates,
-      options: {
-        tabBarIcon: ({ color, size }) => (
-          <Image
-            source={bell}
-            tintColor={color}
-            style={{
-              width: size,
-              height: size,
-            }}
-          />
-        ),
-      },
-    }),
-  },
-});
+export type StackParamList = {
+  ["LoginScreen"]: undefined;
+  ["ProductListScreen"]: undefined;
+  ["ProductDetailScreen"]: ProductDetailScreenParams;
+  ["AddProductScreen"]: undefined;
+  ["EditProductScreen"]: EditProductScreenParams;
+  ["ProfileScreen"]: undefined;
+  ["PromoScreen"]: undefined;
+  ["NotificationScreen"]: undefined;
+  ["HomeScreen"]: undefined;
+};
 
-const RootStack = createNativeStackNavigator({
-  screens: {
-    HomeTabs: createNativeStackScreen({
-      screen: HomeTabs,
-      options: {
-        title: 'Home',
-        headerShown: false,
-      },
-    }),
-    Profile: createNativeStackScreen({
-      screen: Profile,
-      linking: {
-        path: ':user(@[a-zA-Z0-9-_]+)',
-        parse: {
-          user: (value) => value.replace(/^@/, ''),
-        },
-        stringify: {
-          user: (value) => `@${value}`,
-        },
-      },
-    }),
-    Settings: createNativeStackScreen({
-      screen: Settings,
-      options: ({ navigation }) => ({
-        presentation: 'modal',
-        headerRight: () => (
-          <HeaderButton onPress={navigation.goBack}>
-            <Text>Close</Text>
-          </HeaderButton>
-        ),
-      }),
-    }),
-    NotFound: createNativeStackScreen({
-      screen: NotFound,
-      options: {
-        title: '404',
-      },
-      linking: {
-        path: '*',
-      },
-    }),
-  },
-});
+const Stack = createNativeStackNavigator<StackParamList>();
 
-export const Navigation = createStaticNavigation(RootStack);
-
-type RootStackType = typeof RootStack;
-
-declare module '@react-navigation/native' {
-  interface RootNavigator extends RootStackType {}
+export default function Navigation() {
+  const isAuthenthicated = useAuthStore((state) => state.token);
+  return (
+    <NavigationContainer
+      onReady={() => {
+        SplashScreen.hideAsync();
+      }}
+    >
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        {!isAuthenthicated ? (
+          <Stack.Group>
+            <Stack.Screen name="LoginScreen" component={LoginScreen} />
+          </Stack.Group>
+        ) : (
+          <Stack.Group>
+            <Stack.Screen name="HomeScreen" component={HomeScreen} />
+            <Stack.Screen
+              name="ProductDetailScreen"
+              component={ProductDetailScreen}
+            />
+            <Stack.Screen
+              name="EditProductScreen"
+              component={EditProductScreen}
+            />
+          </Stack.Group>
+        )}
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
 }

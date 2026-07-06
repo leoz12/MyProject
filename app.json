@@ -6,7 +6,6 @@
     "orientation": "default",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
     "scheme": "myproduct",
     "ios": {
       "supportsTablet": true,
@@ -15,7 +14,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#FFF"
       },
       "package": "com.myproduct"
     },
@@ -27,10 +26,11 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#ffffff",
+          "backgroundColor": "#FFF",
           "image": "./assets/splash-icon.png"
         }
-      ]
+      ],
+      "@react-native-vector-icons/ant-design"
     ]
   }
 }
